@@ -44,5 +44,7 @@ jobs:
               host: ${{ secrets.HOST }}
               username: ${{ vars.SSH_USERNAME }}
               password: ${{ secrets.PASSWORD }}
-              script: ls
-
+              script: |
+                cd /home/ubuntu/devops-ecommerce/ecommerce-back
+                sudo docker compose pull
+                sudo docker compose up -d --force-recreate --remove-orphans
