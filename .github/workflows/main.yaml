@@ -24,6 +24,13 @@ jobs:
             - name: push latest image
               run: docker push talel12/e-commerce-back
 
+            - name: Tag image with version number
+              run: docker tag talel12/e-commerce-back talel12/e-commerce-back:1
+
+            - name: push version image
+              run: docker push talel12/e-commerce-back:1
+            
+
             
 
     # build and push
