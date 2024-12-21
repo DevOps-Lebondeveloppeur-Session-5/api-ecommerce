@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  api:
-    container_name: e-commerce-back
+  api-ecommerce:
+    container_name: api-ecommerce
     env_file:
        - .env
     depends_on:
@@ -12,8 +12,12 @@ services:
       - "3000:3000"
     command: ["sh", "-c" , "npm run seed:db hello@lebondeveloppeur.com admin123 && npm start"]
     environment:
+      - PORT=3000
       - MONGO_URI=mongodb://mongodb-user:mongodb-pass@mongodb-service:27017/db-ecommerce?authSource=admin
+      - CLIENT_URL=http://localhost:4001
       - JWT_SECRET=I1eZOSzokm9OIz
+    networks:
+      - api-ecommerce-network
 
   mongodb-service:
     container_name: mongodb-container
@@ -24,8 +28,13 @@ services:
       MONGO_INITDB_DATABASE: db-ecommerce
     ports:
       - "27017:27017"
+    volumes:
+      - mongodb-volume:/data/db
+    networks:
+      - api-ecommerce-network
 
   mongo-express:
+    container_name: mongo-express-container
     image: mongo-express
     depends_on: 
       - mongodb-service
@@ -37,3 +46,12 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: mongodb-pass
       ME_CONFIG_MONGODB_URL: mongodb://mongodb-user:mongodb-pass@mongodb-service:27017/db-ecommerce?authSource=admin
       ME_CONFIG_BASICAUTH: false
+    networks:
+      - api-ecommerce-network
+
+networks:
+  api-ecommerce-network:
+    driver: bridge
+
+volumes:
+  mongodb-volume:

@@ -1,0 +1,23 @@
+name: CI/CD api-ecommerce
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    build-and-push:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Build docker image
+              run: docker build -t talel12/e-commerce-back .
+            
+            
+
+    # build and push
+
+
+    # Deploy
