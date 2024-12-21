@@ -14,7 +14,12 @@ jobs:
 
             - name: Build docker image
               run: docker build -t talel12/e-commerce-back .
-            
+              
+            - name: list folders and images
+              run: |
+                ls -l
+                docker images
+           
             
 
     # build and push
