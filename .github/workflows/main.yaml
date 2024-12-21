@@ -1,6 +1,7 @@
 name: CI/CD api-ecommerce
 
 env: 
+  BUILD_NUMBER: ${{ github.run_number }}
   IMAGE_NAME: e-commerce-back
 
 on:
@@ -28,10 +29,10 @@ jobs:
               run: docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
 
             - name: Tag image with version number
-              run: docker tag ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }} ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:2
+              run: docker tag ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }} ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER }}
 
             - name: push version image
-              run: docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:2
+              run: docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER }}
             
 
             
