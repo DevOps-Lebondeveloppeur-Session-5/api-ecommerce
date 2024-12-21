@@ -22,7 +22,7 @@ jobs:
                 password: ${{ secrets.DOCKERHUB_TOKEN }}
             
             - name: push latest image
-              run: docker push talel12/e-commerce-back:1
+              run: docker push talel12/e-commerce-back
 
             
 
