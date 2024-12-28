@@ -25,10 +25,15 @@ jobs:
             npm run test -- --json --outputFile=test-reports/test-report.json
 
         - name: Upload test report as artifact
+          if: always()
           uses: actions/upload-artifact@v3
           with:
             name: test-report
             path: test-reports/test-report.json
+
+        - name: Fail the workflow if tests failed
+          if: failure()
+          run: exit 1
         
 
     static-code-analysis-job:
