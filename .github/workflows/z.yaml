@@ -1,0 +1,95 @@
+name: CI/CD api-ecommerce
+
+env: 
+  BUILD_NUMBER: ${{ github.run_number }}
+  IMAGE_NAME: e-commerce-back
+
+on:
+    push:
+        branches:
+            - mainnnn
+
+jobs:
+    test-job:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Clone Source Code
+          uses: actions/checkout@v4
+
+        - name: Set up Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+
+        - name: Install dependencies
+          run: npm install
+
+        - name: Run unit tests and generate report
+          run: |
+            mkdir -p test-reports
+            npm test -- --json --outputFile=test-reports/test-report.json
+
+        - name: Upload test report as artifact
+          uses: actions/upload-artifact@v3
+          with:
+            name: test-report
+            path: test-reports/test-report.json
+
+    static-code-analysis-job:
+      runs-on: ubuntu-latest
+      needs: test-job
+      continue-on-error: true
+      steps:
+        - name: Clone Source Code
+          uses: actions/checkout@v4
+
+        - name: Set up Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+
+        - name: Install dependencies
+          run: npm install
+
+        - name: Run ESLint for static code analysis
+          run: npm run lint 
+          
+    build-and-push:
+        runs-on: ubuntu-latest
+        needs: static-code-analysis-job
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Build docker image
+              run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }} .
+            
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                username: ${{ vars.DOCKERHUB_USERNAME }}
+                password: ${{ secrets.DOCKERHUB_TOKEN }}
+            
+            - name: push latest image
+              run: docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+
+            - name: Tag image with version number
+              run: docker tag ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }} ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER }}
+
+            - name: push version image
+              run: docker push ${{ vars.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER }}
+            
+    Deploy:
+        runs-on: ubuntu-latest  
+        needs: build-and-push
+        steps:
+          - name: executing remote ssh commands using password
+            uses: appleboy/ssh-action@v1.2.0
+            with:
+              host: ${{ secrets.HOST }}
+              username: ${{ vars.SSH_USERNAME }}
+              password: ${{ secrets.PASSWORD }}
+              script: |
+                cd /home/ubuntu/devops-ecommerce/ecommerce-back
+                sudo docker compose pull
+                sudo docker compose up -d --force-recreate --remove-orphans
