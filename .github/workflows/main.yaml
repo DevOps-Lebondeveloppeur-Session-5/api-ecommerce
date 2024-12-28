@@ -10,6 +10,50 @@ on:
             - main
 
 jobs:
+    test-job:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Clone Source Code
+          uses: actions/checkout@v4
+
+        - name: Set up Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+
+        - name: Install dependencies
+          run: npm install
+
+        - name: Run unit tests and generate report
+          run: |
+            mkdir -p test-reports
+            npm test -- --json --outputFile=test-reports/test-report.json
+
+        - name: Upload test report as artifact
+          uses: actions/upload-artifact@v3
+          with:
+            name: test-report
+            path: test-reports/test-report.json
+
+    static-code-analysis-job:
+      runs-on: ubuntu-latest
+      needs: test-job
+      continue-on-error: true
+      steps:
+        - name: Clone Source Code
+          uses: actions/checkout@v4
+
+        - name: Set up Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+
+        - name: Install dependencies
+          run: npm install
+
+        - name: Run ESLint for static code analysis
+          run: npm run lint 
+          
     build-and-push:
         runs-on: ubuntu-latest
         steps:
