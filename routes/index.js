@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 
 // Test route
 router.get('/test', (req, res) => {
-  res.json({ message: 'Welcome to the API !' });
+  res.json({ message: 'Welcome to the API eeeeeeeeee !' });
 });
 
 
