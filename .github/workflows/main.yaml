@@ -19,7 +19,7 @@ jobs:
         - name: show images list
           run: docker images
 
-        -name: show docker containers
+        - name: show docker containers
           run: docker ps
 
         - name: Install dependencies
