@@ -20,7 +20,9 @@ jobs:
           run: npm install
 
         - name: Run static code analysis
-          run: npm run test -- --json --outputFile=test-reports/test-report.json
+          run: |
+            mkdir -p test-reports
+            npm run test -- --json --outputFile=test-reports/test-report.json
 
         - name: show report results
           run: cat test-reports/test-report.json | jq 
