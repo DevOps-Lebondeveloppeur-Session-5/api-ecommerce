@@ -24,8 +24,11 @@ jobs:
             mkdir -p test-reports
             npm run test -- --json --outputFile=test-reports/test-report.json
 
-        - name: show report results
-          run: cat test-reports/test-report.json | jq 
+        - name: Upload test report as artifact
+          uses: actions/upload-artifact@v3
+          with:
+            name: test-report
+            path: test-reports/test-report.json
         
 
     static-code-analysis-job:
